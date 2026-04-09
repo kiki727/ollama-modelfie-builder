@@ -216,13 +216,31 @@ class ModelfileApp {
     editor.setValue(content);
   }
 
-  goToStep2() {
+  async goToStep2() {
     if (!this.selectedModel || !this.selectedTag) return;
     
-    this.currentTemplate = getTemplateForModel(this.selectedModel.name);
-    const filledTemplate = fillTemplate(this.currentTemplate, this.selectedModel.name, this.selectedTag);
+    let modelfileContent = null;
     
-    initEditor(filledTemplate);
+    try {
+      modelfileContent = await fetchModelModelfile(this.selectedModel.name);
+    } catch (err) {
+      console.log('Could not load modelfile from model, using predefined template');
+    }
+    
+    if (modelfileContent) {
+      const baseModelMatch = modelfileContent.match(/^FROM\s+(.+)$/m);
+      if (baseModelMatch) {
+        modelfileContent = modelfileContent.replace(
+          /^FROM\s+.+$/m,
+          `FROM ${this.selectedModel.name}:${this.selectedTag}`
+        );
+      }
+      initEditor(modelfileContent);
+    } else {
+      this.currentTemplate = getTemplateForModel(this.selectedModel.name);
+      const filledTemplate = fillTemplate(this.currentTemplate, this.selectedModel.name, this.selectedTag);
+      initEditor(filledTemplate);
+    }
     
     this.step1.style.display = 'none';
     this.step2.style.display = 'block';

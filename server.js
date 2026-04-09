@@ -83,6 +83,32 @@ app.get('/api/model-parameters/:modelName', async (req, res) => {
   }
 });
 
+app.get('/api/model-modelfile/:modelName', async (req, res) => {
+  const { modelName } = req.params;
+  
+  if (!modelName) {
+    return res.status(400).json({ error: 'Missing modelName' });
+  }
+  
+  try {
+    const ollamaPath = ollamaHelper.findOllamaPath();
+    if (!ollamaPath) {
+      return res.status(400).json({ error: 'Ollama not found' });
+    }
+    
+    const { execSync } = require('child_process');
+    const fullName = modelName.includes(':') ? modelName : `${modelName}:latest`;
+    const output = execSync(
+      `"${ollamaPath}" show ${fullName} --modelfile`,
+      { encoding: 'utf8', timeout: 30000, windowsHide: true }
+    );
+    
+    res.json({ modelfile: output });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 function start(port = 3000) {
   serverInstance = app.listen(port, () => {
     console.log(chalk.green('  ✓ Server running at: ') + chalk.cyan(`http://localhost:${port}`));

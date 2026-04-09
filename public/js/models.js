@@ -44,3 +44,14 @@ async function fetchModelParameters(modelName) {
     return null;
   }
 }
+
+async function fetchModelModelfile(modelName) {
+  try {
+    const response = await fetch(`${API_BASE}/model-modelfile/${encodeURIComponent(modelName)}`);
+    const data = await response.json();
+    return data.modelfile || null;
+  } catch (err) {
+    console.error('Failed to fetch model modelfile:', err);
+    return null;
+  }
+}
