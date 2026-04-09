@@ -1,0 +1,22 @@
+{
+  "name": "modelfile-builder",
+  "version": "1.0.0",
+  "description": "CLI and Web UI tool for creating Ollama Modelfiles",
+  "main": "cli.js",
+  "bin": {
+    "modelfile-builder": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js serve",
+    "dev": "node cli.js serve"
+  },
+  "keywords": ["ollama", "modelfile", "llm", "cli"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelfile Builder</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <span>Modelfile Builder</span>
+      </div>
+      <div class="header-actions">
+        <div class="ollama-status" id="ollamaStatus">
+          <span class="status-dot"></span>
+          <span class="status-text">Checking Ollama...</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="wizard-container" id="wizardContainer">
+        <div class="wizard-step" id="step1">
+          <div class="step-header">
+            <div class="step-number">1</div>
+            <h2>Select Base Model</h2>
+          </div>
+          <div class="step-content">
+            <p class="step-description">Choose the base model you want to customize</p>
+            
+            <div class="form-group">
+              <label for="modelSelect">Base Model</label>
+              <select id="modelSelect" class="form-select">
+                <option value="">Loading models...</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="tagGroup" style="display: none;">
+              <label for="tagSelect">Model Version</label>
+              <select id="tagSelect" class="form-select">
+              </select>
+            </div>
+
+            <div class="model-info" id="modelInfo" style="display: none;">
+              <div class="info-item">
+                <span class="info-label">Source:</span>
+                <span class="info-value" id="modelSource">-</span>
+              </div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-primary" id="nextBtn" disabled>
+                  Continue to Editor
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-step" id="step2" style="display: none;">
+          <div class="step-header">
+            <div class="step-number">2</div>
+            <h2>Edit Modelfile</h2>
+          </div>
+          <div class="step-content">
+            <p class="step-description">Customize your model with parameters, templates, and system prompt</p>
+            
+            <div class="editor-toolbar">
+              <button class="toolbar-btn" id="formatBtn" title="Format Modelfile">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="21" y1="10" x2="3" y2="10"/>
+                  <line x1="21" y1="6" x2="3" y2="6"/>
+                  <line x1="21" y1="14" x2="3" y2="14"/>
+                  <line x1="21" y1="18" x2="3" y2="18"/>
+                </svg>
+                Format
+              </button>
+              <button class="toolbar-btn" id="resetBtn" title="Reset to default template">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                Reset
+              </button>
+              <div class="toolbar-spacer"></div>
+              <button class="toolbar-btn" id="copyBtn" title="Copy to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                Copy
+              </button>
+            </div>
+
+            <div class="parameters-panel" id="parametersPanel">
+              <div class="parameters-header" id="parametersHeader">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>Parameters</span>
+                <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="parameters-content" id="parametersContent">
+                <div class="param-row">
+                  <div class="param-group">
+                    <label for="paramNumCtx">num_ctx</label>
+                    <input type="number" id="paramNumCtx" class="param-input" min="256" max="32768" step="256">
+                  </div>
+                  <div class="param-group">
+                    <label for="paramTopK">top_k</label>
+                    <input type="number" id="paramTopK" class="param-input" min="0" max="100" step="1">
+                  </div>
+                </div>
+                <div class="param-row">
+                  <div class="param-group">
+                    <label for="paramTopP">top_p</label>
+                    <div class="param-slider">
+                      <input type="range" id="paramTopP" class="param-range" min="0" max="1" step="0.05">
+                      <span class="param-value" id="paramTopPValue">0.9</span>
+                    </div>
+                  </div>
+                  <div class="param-group">
+                    <label for="paramTemperature">temperature</label>
+                    <div class="param-slider">
+                      <input type="range" id="paramTemperature" class="param-range" min="0" max="2" step="0.1">
+                      <span class="param-value" id="paramTemperatureValue">0.7</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="editor-container">
+              <textarea id="editor"></textarea>
+            </div>
+
+            <div class="step-actions">
+              <button class="btn btn-secondary" id="backBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+              </button>
+              <button class="btn btn-primary" id="saveBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/>
+                  <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save Model
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="modal-overlay" id="saveModal" style="display: none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Save Model</h3>
+          <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="modelName">Model Name</label>
+            <input type="text" id="modelName" class="form-input" placeholder="my-custom-model" autocomplete="off">
+          </div>
+          <div class="export-options">
+            <h4>Export Options</h4>
+            <div class="export-btns">
+              <button class="btn btn-outline" id="downloadBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download
+              </button>
+              <button class="btn btn-outline" id="clipboardBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                Copy to Clipboard
+              </button>
+              <button class="btn btn-primary" id="createOllamaBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Create in Ollama
+              </button>
+            </div>
+          </div>
+          <div class="export-result" id="exportResult" style="display: none;">
+            <div class="result-message" id="resultMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">
+      <span class="toast-message" id="toastMessage"></span>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
